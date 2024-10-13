@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "apexcharts": "^3.54.0",
+    "flowbite": "^2.5.2"
+  }
+}
