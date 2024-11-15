@@ -1,13 +1,13 @@
 defmodule SmartHomeWeb.NetworkTariff.NetworkConsumptionController do
 
-  def consumption_per_day(_start_date, _end_date) do
+  def consumption_per_day(start_date, end_date) do
     url = "https://api.informatika.si/mojelektro/v1/meter-readings"
 
     #endTime: Date.utc_today()
     params = [
       usagePoint: "3-8008877",
-      startTime: "2024-07-01",
-      endTime: "2024-07-31",
+      startTime: start_date,
+      endTime: end_date,
       option: "ReadingType=32.0.4.1.1.2.12.0.0.0.0.1.0.0.0.3.72.0",
       option: "ReadingType=32.0.4.1.1.2.12.0.0.0.0.2.0.0.0.3.72.0"
     ]
@@ -41,8 +41,8 @@ defmodule SmartHomeWeb.NetworkTariff.NetworkConsumptionController do
     transform_data(results)
   end
 
-  def cost_per_day do
-    result=consumption_per_day(1,2)
+  def cost_per_day(start_date, end_date) do
+    result=consumption_per_day(start_date, end_date)
 
     {multiplied_data, consumption_1_sum, consumption_2_sum} =
       Enum.reduce(result, {[], 0, 0}, fn
@@ -61,9 +61,19 @@ defmodule SmartHomeWeb.NetworkTariff.NetworkConsumptionController do
     multiplied_data = Enum.reverse(multiplied_data)
 
     # Output
-    {multiplied_data, Float.round(consumption_1_sum, 2), Float.round(consumption_2_sum, 2)}
+    {multiplied_data , Float.round((consumption_1_sum * 0.22) + consumption_1_sum, 2), Float.round((consumption_2_sum * 0.22) + consumption_2_sum, 2)}
 
 
+  end
+
+  def cost_for_current_month do
+    {_multiplied_data_month, consumption_1_sum_month, consumption_2_sum_month} = cost_per_day(Date.to_string(%Date{Date.utc_today() | day: 1}), Date.utc_today())
+    #{_multiplied_data_month, consumption_1_sum_month, consumption_2_sum_month} = cost_per_day("2024-10-01", "2024-10-31")
+
+    fixed_costs_for_month = ((5.57 + 1.99 + 0.82) * 0.22) + (5.57 + 1.99 + 0.82)
+
+    skupaj = Float.round(fixed_costs_for_month + consumption_1_sum_month + consumption_2_sum_month)
+    skupaj
   end
 
 

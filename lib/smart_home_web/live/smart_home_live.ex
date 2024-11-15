@@ -5,12 +5,19 @@ defmodule SmartHomeWeb.SmartHomeLive do
 
   def mount(_params, _session, socket) do
 
-    {multiplied_data, consumption_1_sum, consumption_2_sum} = NetworkConsumptionController.cost_per_day
+    {multiplied_data, consumption_1_sum, consumption_2_sum} = NetworkConsumptionController.cost_per_day("2024-11-01", Date.utc_today())
+    consumption_per_day = NetworkConsumptionController.consumption_per_day("2024-11-01", Date.utc_today())
+    costs_for_month_ddv = NetworkConsumptionController.cost_for_current_month()
 
+    options = [
+      {"Option 1", "1"},
+      {"Option 2", "2"},
+      {"Option 3", "3"}
+    ]
 
     chart_data_consumption = %{
       colors: ["#1A56DB", "#FDBA8C"],
-      series: NetworkConsumptionController.consumption_per_day(1,2),
+      series: consumption_per_day,
       chart: %{
         type: "bar",
         height: "320px",
@@ -131,6 +138,8 @@ defmodule SmartHomeWeb.SmartHomeLive do
       |> assign(chart_data_cost: Jason.encode!(chart_data_cost))
       |> assign(consumption_1_sum: consumption_1_sum)
       |> assign(consumption_2_sum: consumption_2_sum)
+      |> assign(costs_for_month_ddv: costs_for_month_ddv)
+      |> assign(options: options)
 
     {:ok, socket}
   end
@@ -149,6 +158,15 @@ defmodule SmartHomeWeb.SmartHomeLive do
         </div>
       </div>
     </nav>
+
+    <div class="lg:flex p-4 mt-14 justify-around">
+      <div class="max-w-sm w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Račun za ta mesec</h5>
+        <h5 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <%= @costs_for_month_ddv %> €
+        </h5>
+      </div>
+    </div>
 
     <div class="lg:flex p-4 mt-14 justify-around">
 

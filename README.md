@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 # omreznina-elixir
 UI card for current block indicator
+
+TODO: fix ui
+      add 10% regulirane cene
+      add montly overall costs
 =======
 # SmartHome
 
